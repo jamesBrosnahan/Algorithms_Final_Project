@@ -1,0 +1,26 @@
+Project proposal
+	The problem
+		Project goals:
+
+		Algorithms implemented:
+		Problem solved by algorithm:
+		Data set used for implementation:
+		Background knowledge, solved examples, etc.:
+
+	The method
+		Complexity analysis of algorithm:
+		Algorithm implementation:
+		Limits of algorithm's applicability:
+		Adequacy of available data:
+
+	Evaluation
+		Correctness of algorithms in solving problem:
+		Representation and bias safeguards of testing strategy:
+		Fairness of comparison between alternative algorithms:
+
+	Your own grading criteria
+		Accomplishments required to expect an A:
+		Accomplishments required to expect a B:
+		Minimum necessary for passing:
+		Section that deserves bonus points:
+		You must state the criteria for grading each one of you.
