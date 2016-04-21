@@ -1,10 +1,17 @@
 Project proposal
 	The problem
 		Project goals:
-
+			This project aims to present multiple implements of solutions to the convex-hull problem in 3 dimensions and an indepth comprison of runtime.
 		Algorithms implemented:
+			Graham Scan, Jarvis March, divide-and-conquer convex-hull
 		Problem solved by algorithm:
+			3-d convex-hull for arbitrary selection of 3d points, consisting of x, y, and z float coordinates.
 		Data set used for implementation:
+			struct point{ float x, y, z;}
+			int main(int argc, char **argv){
+				std::vector<point> points;
+				// randomly generated data sets of size 
+			}
 		Background knowledge, solved examples, etc.:
 
 	The method
