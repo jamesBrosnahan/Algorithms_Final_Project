@@ -13,21 +13,36 @@ Project proposal
 				// randomly generated data sets of size 
 			}
 		Background knowledge, solved examples, etc.:
-
 	The method
 		Complexity analysis of algorithm:
+			mathematical proof of code implemented
 		Algorithm implementation:
+			C++11 with each algorithm being respresented by a function
 		Limits of algorithm's applicability:
+			algorithm only works with 3d points that represent coordinates as floats in a 3d gaussian plane
 		Adequacy of available data:
-
+			random points are fairly distributed and likely to be encountered in a real-world application
 	Evaluation
 		Correctness of algorithms in solving problem:
+			The data will be recorded to csv files and verified against each algorithm, also if available publicly released code that has been previously tested 
 		Representation and bias safeguards of testing strategy:
+			The data used is entirely random and has a uniform distribution.
 		Fairness of comparison between alternative algorithms:
-
+			Each algorithm will use the same data sets.
 	Your own grading criteria
 		Accomplishments required to expect an A:
+			All algorithms implemented, run-time analysis of each algorithm, comparison of predicted run-time to actual runtime. 
+			Professional, high quality presentation format; 5-10 minutes of verbose content. 
+			Indepth understanding of implemented algorithms by all members of each group, to the extent that each group member could present alone if needed and answer any questions.
 		Accomplishments required to expect a B:
+			All algorithms implemented, run-time analysis of each algorithm, comparison of predicted run-time to actual runtime.
+			Professional, quality presentation format; 5-7 minutes of content.
+			Indepth understanding of implemented algorithms by all members of each group, to the extent that each group member could present alone if needed.
 		Minimum necessary for passing:
+			All algorithms implemented, run-time analysis of each algorithm, comparison of predicted run-time to actual runtime.
+			Professional, quality presentation format; 5-7 minutes of content.
+			Indepth understanding of implemented algorithms by all members of each group, to the extent that each group member could present alone if needed.
 		Section that deserves bonus points:
+			Graphic user interface, advanced data source gathering i.e. an application to some real-world data source, a 3-d model or other applicable source
 		You must state the criteria for grading each one of you.
+			
