@@ -19,6 +19,44 @@ struct point {
 	float x, y, z;
 };
 
+std::vector<point> two_dimension_jarvis_march(std::vector<point> points) {
+	std::vector<point> convex_hull_points;
+
+
+	return convex_hull_points;
+}
+
+std::vector<point> two_dimension_divide_and_conquer(std::vector<point> points) {
+	std::vector<point> convex_hull_points;
+
+
+	return convex_hull_points;
+}
+
+std::vector<point> two_dimension_graham_scan(std::vector<point> points) {
+	std::vector<point> convex_hull_points;
+
+	auto lowest_y_coordinate = std::min_element(points.begin(), points.end(), [](point const& p1, point const& p2)
+	{
+		return p1.y < p2.y;
+	});
+	auto angle_comparison_lambda_function = [](point const& p1, point const& p2, point const& the_lowest_y_coordinate_point_found_on_the_last_line) {
+		auto find_angle_of_two_points = [](point const& p1, point const& p2) {
+
+			return 1;
+		};
+		auto angle_of_p1_and_origin = find_angle_of_two_points(p1, the_lowest_y_coordinate_point_found_on_the_last_line);
+		auto angle_of_p2_and_origin = find_angle_of_two_points(p2, the_lowest_y_coordinate_point_found_on_the_last_line);
+		return angle_of_p1_and_origin < angle_of_p2_and_origin;
+	};
+	std::sort(points.begin(), points.end(), std::bind(angle_comparison_lambda_function, std::placeholders::_1, std::placeholders::_2, lowest_y_coordinate));
+	auto left_or_right_turn_function = [](point const& p) {
+	};
+	std::for_each(points.begin() + 1, points.end(), left_or_right_turn_function);
+
+	return convex_hull_points;
+}
+
 std::vector<point> jarvis_march(std::vector<point> points) {
 	std::vector<point> convex_hull_points;
 
@@ -116,19 +154,19 @@ int main()
 			}
 
 			start_time = std::chrono::high_resolution_clock::now();//get the start time
-			convex_hull_graham_scan = graham_scan(coordinates);
+			convex_hull_graham_scan = two_dimension_graham_scan(coordinates);
 			end_time = std::chrono::high_resolution_clock::now(); // get the end time
 			duration_graham_scan = std::chrono::duration_cast<microseconds>(end_time - start_time);
 			std::cout << std::fixed << std::setprecision(2) << " Duration of graham scan using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << "," << min_range << ") to " "(" << max_range << "," << max_range << "," << max_range << ") : " << duration_graham_scan.count() << " ms" << std::endl;
 
 			start_time = std::chrono::high_resolution_clock::now();//get the start time
-			convex_hull_jarvis_march = jarvis_march(coordinates);
+			convex_hull_jarvis_march = two_dimension_jarvis_march(coordinates);
 			end_time = std::chrono::high_resolution_clock::now(); // get the end time
 			duration_jarvis_march = std::chrono::duration_cast<microseconds>(end_time - start_time);
 			std::cout << std::fixed << std::setprecision(2) << " Duration of jarvis march using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << "," << min_range << ") to " "(" << max_range << "," << max_range << "," << max_range << ") : " << duration_jarvis_march.count() << " ms" << std::endl;
 
 			start_time = std::chrono::high_resolution_clock::now();//get the start time
-			convex_hull_divide_and_conquer = divide_and_conquer(coordinates);
+			convex_hull_divide_and_conquer = two_dimension_divide_and_conquer(coordinates);
 			end_time = std::chrono::high_resolution_clock::now(); // get the end time
 			duration_divide_and_conquer = std::chrono::duration_cast<microseconds>(end_time - start_time);
 			std::cout << std::fixed << std::setprecision(2) << " Duration of divide and conquer using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << "," << min_range << ") to " "(" << max_range << "," << max_range << "," << max_range << ") : " << duration_divide_and_conquer.count() << " ms" << std::endl;
