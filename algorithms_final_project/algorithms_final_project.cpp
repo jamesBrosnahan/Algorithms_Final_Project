@@ -28,6 +28,7 @@ struct point {
 };
 
 std::vector<point> merge_hulls(std::vector<point> const& left, std::vector<point> const& right) {
+	std::vector<point> convex_hull_points;
 	auto left_point = [](point const& p1, point const& p2) {
 		return p1.x < p2.x;
 	};
@@ -35,7 +36,7 @@ std::vector<point> merge_hulls(std::vector<point> const& left, std::vector<point
 
 
 
-
+	return convex_hull_points;
 }
 
 std::vector<point> divide_and_conquer(std::vector<point> points) {
@@ -82,17 +83,19 @@ std::vector<point> jarvis_march(std::vector<point> points) {
 		}
 	};
 	point endpoint;
-	point hull_point = *std::min_element(points.begin(), points.end(), min_x_coordinate);
+	point min_point = *std::min_element(points.begin(), points.end(), min_x_coordinate);
+	point hull_point = min_point;
 	auto i = 0;
 	do {
 		convex_hull_points.push_back(hull_point);
 		endpoint = points[0];
 		for (int j = 1; j < points.size(); j++) {
-			if ((endpoint == hull_point) || (left_or_right_turn_function(points[i], endpoint, points[j]) < 0)) {
+			if ((left_or_right_turn_function(convex_hull_points.back(), endpoint, points[j]) < 0)) {
 				endpoint = points[j];
+				i = j;
 			}
 		}
-		++i;
+		points.erase(points.begin() + i);
 		hull_point = endpoint;
 	} while (endpoint != convex_hull_points[0]);
 
@@ -163,7 +166,7 @@ int test_correctness_of_graham_scan() {
 	}
 	std::vector<point> hull = jarvis_march(coordinates);
 	std::for_each(hull.begin(), hull.end(), [](point const& p) {std::cout << std::fixed << std::setprecision(2) << p.x << " " << p.y << std::endl;});
-
+	return 1;
 }
 /*
 expected output:
