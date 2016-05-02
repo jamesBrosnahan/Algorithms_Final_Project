@@ -246,3 +246,25 @@ std::cout << std::fixed << std::setprecision(2) << " Duration of divide and conq
 return 0;
 }
 */
+
+
+int write_files_for_jarvis_march() {
+	
+
+	return 1;
+}
+
+int test_jarvis_march() {
+
+	return 1;
+}
+
+
+
+
+
+
+
+
+
+
