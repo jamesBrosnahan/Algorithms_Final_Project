@@ -1,6 +1,7 @@
 // algorithms_final_project.cpp : Defines the entry point for the console application.
 //
 
+#include <fstream> // For fstream
 #include <map> //For map
 #include <iostream> // For cout
 #include <algorithm> // For std::min_element, std::sort
@@ -13,6 +14,8 @@
 #include <iomanip> // For std::setprecision
 #include <math.h> // For atan2
 #include <tuple> // For std::tie
+#include <sstream>  // std::stringstream
+#include <future>// for test functions
 
 using namespace std;
 using namespace std::chrono;
@@ -102,9 +105,6 @@ std::vector<point> jarvis_march(std::vector<point> points) {
 	return convex_hull_points;
 }
 
-
-
-
 std::vector<point> graham_scan(std::vector<point> points) {
 	std::vector<point> convex_hull_points;
 	auto min_y_coordinate = [](point const& p1, point const& p2) {
@@ -175,96 +175,151 @@ expected output:
 4.00 4.00
 0.00 3.00
 */
+
+std::string write_random_points(size_t number_of_points, size_t radius=1, std::string file_name = ""){
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> distribution;
+    distribution = std::uniform_real_distribution<float>(-1.f * (float)radius, (float)radius);
+    auto random_coordinate = std::bind(distribution, generator);
+    if(file_name == ""){
+        file_name = "random_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) +".points";
+    }
+    std::ofstream file(file_name);
+    file << number_of_points << std::endl;
+    float x, y;
+    for(int i = 0; i < number_of_points; i++){
+        x = random_coordinate();
+        y = random_coordinate();
+        file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+    }
+    return file_name;
+}
+
+std::string write_circle_points(size_t number_of_points, size_t radius=1, std::string file_name = ""){
+
+    if(file_name == ""){
+        file_name = "circle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) +".points";
+    }
+    std::ofstream file(file_name);
+    file << number_of_points << std::endl;
+    float degree_increment = ((float)M_PI * 2.f) / (float)number_of_points;
+    float x, y, a;
+    for(int i = 0; i < number_of_points; i++){
+        a = degree_increment * (float)i;
+        x = radius * cos(a);
+        y = radius * sin(a);
+        file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+    }
+    return file_name;
+}
+
+std::vector<point> load_file(std::string file_name){
+    std::vector<point> points;
+    std::ifstream file(file_name);
+    std::string value;
+    std::stringstream line;
+    point temp_point;
+    std::getline(file, value);
+    size_t number_of_points = (size_t)std::stoi(value);
+
+    
+    for(size_t i = 0; i < number_of_points; i++){
+        std::getline(file, value);
+        line.clear();
+        line.str(value);
+        std::getline(line, value, ' ');
+        temp_point.x = std::stof(value);
+        std::getline(line, value, ' ');
+        temp_point.y = std::stof(value);
+        points.push_back(temp_point);
+    }
+    return points;
+}
+
+void test_jarvis_march() {
+    std::chrono::microseconds circle_microseconds, random_microseconds;
+    std::ofstream log_file("jarvis_march_log_file.txt");
+    size_t number_of_points = 360, radius=5;
+    
+    std::string file_name;
+    std::vector<point> circle_points, random_points, circle_hull, random_hull;
+    
+    auto convex_hull = [](std::vector<point> &points, std::vector<point> &output_hull) -> std::chrono::microseconds{
+        std::chrono::high_resolution_clock::time_point end_time, start_time;
+        if(output_hull.size() > 0){
+            output_hull.clear();
+        }
+        start_time = std::chrono::high_resolution_clock::now(); //get the start time
+        output_hull = jarvis_march(points); //run algorithm
+        end_time = std::chrono::high_resolution_clock::now(); // get the end time
+        std::chrono::microseconds microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+        return microseconds;
+    };    
+    
+    
+    
+    file_name = write_circle_points(number_of_points, radius);
+    circle_points = load_file(file_name);
+
+    file_name = write_random_points(number_of_points, radius);
+    random_points = load_file(file_name);
+    
+    std::future<std::chrono::microseconds> circle_future(std::async(convex_hull, std::ref(circle_points), std::ref(circle_hull)));
+    std::future<std::chrono::microseconds> random_future(std::async(convex_hull, std::ref(random_points), std::ref(random_hull)));
+
+    random_microseconds = random_future.get();
+
+    std::cout << std::fixed << std::setprecision(2) << " Duration of Jarvis March using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius)  << " square completed in " << random_microseconds.count() << " microseconds " << std::endl;
+    
+    log_file << std::fixed << std::setprecision(2) << " Duration of Jarvis March using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius)  << " square completed in " << random_microseconds.count() << " microseconds " << std::endl;
+    
+    circle_microseconds = circle_future.get();
+    
+    std::cout << std::fixed << std::setprecision(2) << " Duration of Jarvis March with " << number_of_points << " on a circle with radius " << radius << " completed in " << circle_microseconds.count() << " microseconds " << std::endl;
+    
+    log_file << std::fixed << std::setprecision(2) << " Duration of Jarvis March with " << number_of_points << " on a circle with radius " << radius << " completed in " << circle_microseconds.count() << " microseconds " << std::endl;
+    
+}
+
+void test_graham_scan() {
+    std::chrono::microseconds circle_microseconds, random_microseconds;
+    std::ofstream log_file("graham_scan_log_file.txt");
+    size_t number_of_points = 360, radius=5;
+    
+    std::string file_name;
+    std::vector<point> circle_points, random_points, circle_hull, random_hull;
+    
+    auto convex_hull = [](std::vector<point> &points, std::vector<point> &output_hull) -> std::chrono::microseconds{
+        std::chrono::high_resolution_clock::time_point end_time, start_time;
+        if(output_hull.size() > 0){
+            output_hull.clear();
+        }
+        start_time = std::chrono::high_resolution_clock::now(); //get the start time
+        output_hull = graham_scan(points); //run algorithm
+        end_time = std::chrono::high_resolution_clock::now(); // get the end time
+        std::chrono::microseconds microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+        return microseconds;
+    };    
+    
+    
+    
+    file_name = write_circle_points(number_of_points, radius);
+    circle_points = load_file(file_name);
+
+    file_name = write_random_points(number_of_points, radius);
+    random_points = load_file(file_name);
+    
+    std::future<std::chrono::microseconds> circle_future(std::async(convex_hull, std::ref(circle_points), std::ref(circle_hull)));
+    std::future<std::chrono::microseconds> random_future(std::async(convex_hull, std::ref(random_points), std::ref(random_hull)));
+
+    std::cout << std::fixed << std::setprecision(2) << " Duration of Graham Scan using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius)  << " square completed in " << random_future.get().count() << " microseconds " << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << " Duration of Graham Scan with " << number_of_points << " on a circle with radius " << radius << " completed in " << circle_future.get().count() << " microseconds " << std::endl;
+    
+}
+
 int main() {
-	test_correctness_of_graham_scan();
+	//test_correctness_of_graham_scan();
+	test_graham_scan();
+	test_jarvis_march();
 }
-
-/*
-std::map<int, std::string> integer_strings(){
-std::map<int, std::string> integer_map;
-integer_map[1000] = " one thousand ";
-integer_map[10000] = " ten thousand ";
-integer_map[100000] = " one hundred thousand ";
-integer_map[1000000] = " one million ";
-integer_map[10000000] = " ten million ";
-integer_map[100000000] = " one hundred million ";
-integer_map[1000000000] = " one hundred million ";
-return integer_map;
-}
-
-int main()
-{
-std::chrono::high_resolution_clock::time_point end_time, start_time;
-std::vector < point> coordinates;
-std::vector < point> convex_hull_graham_scan, convex_hull_jarvis_march, convex_hull_divide_and_conquer;
-std::string length_string;
-std::chrono::microseconds duration_graham_scan, duration_jarvis_march, duration_divide_and_conquer;
-float min_range, max_range;
-size_t numbers_of_points;
-std::default_random_engine generator;
-std::uniform_real_distribution<float> distribution;
-std::function<float()> random_coordinate;
-std::map<int, std::string> integer_map = integer_strings();
-for (size_t i = 3; i < 5; i++) {
-numbers_of_points = (size_t)std::pow(10, i);
-length_string = integer_map[numbers_of_points];
-
-for (size_t j = 1; j < 2; j++) {
-min_range = -1.f * pow(10.f, (float)j);
-max_range = pow(10.f, (float)j);
-distribution = std::uniform_real_distribution<float>(min_range, max_range);
-random_coordinate = std::bind(distribution, generator);
-if (coordinates.size() > 0) {
-coordinates.clear();
-}
-for (size_t i = 0; i < numbers_of_points; i++) {
-point coordinate;
-coordinate.x = random_coordinate();
-coordinate.y = random_coordinate();
-coordinates.push_back(coordinate);
-}
-
-start_time = std::chrono::high_resolution_clock::now();//get the start time
-convex_hull_graham_scan = graham_scan(coordinates);
-end_time = std::chrono::high_resolution_clock::now(); // get the end time
-duration_graham_scan = std::chrono::duration_cast<microseconds>(end_time - start_time);
-std::cout << std::fixed << std::setprecision(2) << " Duration of graham scan using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << ") to " "(" << max_range << "," << max_range << ") : " << duration_graham_scan.count() << " ms" << std::endl;
-
-start_time = std::chrono::high_resolution_clock::now();//get the start time
-convex_hull_jarvis_march = jarvis_march(coordinates);
-end_time = std::chrono::high_resolution_clock::now(); // get the end time
-duration_jarvis_march = std::chrono::duration_cast<microseconds>(end_time - start_time);
-std::cout << std::fixed << std::setprecision(2) << " Duration of jarvis march using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << "," << ") to " "(" << max_range << "," << max_range << ") : " << duration_jarvis_march.count() << " ms" << std::endl;
-
-start_time = std::chrono::high_resolution_clock::now();//get the start time
-convex_hull_divide_and_conquer = divide_and_conquer(coordinates);
-end_time = std::chrono::high_resolution_clock::now(); // get the end time
-duration_divide_and_conquer = std::chrono::duration_cast<microseconds>(end_time - start_time);
-std::cout << std::fixed << std::setprecision(2) << " Duration of divide and conquer using " << length_string.c_str() << " points, in range " << "(" << min_range << "," << min_range << "," << ") to " "(" << max_range << "," << max_range << ") : " << duration_divide_and_conquer.count() << " ms" << std::endl;
-}
-}
-return 0;
-}
-*/
-
-
-int write_files_for_jarvis_march() {
-	
-
-	return 1;
-}
-
-int test_jarvis_march() {
-
-	return 1;
-}
-
-
-
-
-
-
-
-
-
 
