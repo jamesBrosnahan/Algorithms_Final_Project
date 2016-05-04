@@ -1,6 +1,7 @@
 // algorithms_final_project.cpp : Defines the entry point for the console application.
 //
-
+#define _USE_MATH_DEFINES
+#include <cmath> 
 #include <fstream> // For fstream
 #include <map> //For map
 #include <iostream> // For cout
@@ -98,7 +99,12 @@ std::vector<point> jarvis_march(std::vector<point> points) {
 				i = j;
 			}
 		}
-		points.erase(points.begin() + i);
+		if (i != points.size() - 1)
+		{
+			points[i] = std::move(points.back());
+		}
+		points.pop_back();
+		//points.erase(points.begin() + i);
 		hull_point = endpoint;
 	} while (endpoint != convex_hull_points[0]);
 
@@ -151,8 +157,7 @@ std::vector<point> graham_scan(std::vector<point> points) {
 	return convex_hull_points;
 }
 
-
-int test_correctness_of_graham_scan() {
+int test_correctness_of_jarvis_march() {
 	std::vector<point> coordinates;
 	auto add_point = [&coordinates](float x, float y) {
 		point p;
@@ -175,6 +180,95 @@ expected output:
 4.00 4.00
 0.00 3.00
 */
+enum shape{random, circle, triangle, square};
+std::string write_points(shape type, size_t number_of_points, size_t radius = 1, std::string file_name = "") {
+	std::default_random_engine generator;
+	std::uniform_real_distribution<float> distribution;
+	distribution = std::uniform_real_distribution<float>(-1.f * (float)radius, (float)radius);
+	auto random_coordinate = std::bind(distribution, generator);
+	std::ofstream file;
+	auto random_points = [&]() {
+		if (file_name == "") {
+			file_name = "random_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
+		}
+		file.open(file_name);
+		file << number_of_points << std::endl;
+		float x, y;
+		for (int i = 0; i < number_of_points; i++) {
+			x = random_coordinate();
+			y = random_coordinate();
+			file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+		}
+		return file_name;
+	};
+	auto circle_points = [&]() {
+		if (file_name == "") {
+			file_name = "circle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
+		}
+		file.open(file_name);
+		file << number_of_points << std::endl;
+		float degree_increment = ((float)M_PI * 2.f) / (float)number_of_points;
+		float x, y, a;
+		for (int i = 0; i < number_of_points; i++) {
+			a = degree_increment * (float)i;
+			x = radius * cos(a);
+			y = radius * sin(a);
+			file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+		}
+		return file_name;
+	};
+	auto triangle_points = [&]() {
+		if (file_name == "") {
+			file_name = "triangle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
+		}
+		file.open(file_name);
+		file << number_of_points << std::endl;
+		float degree_increment = ((float)M_PI * 2.f) / (float)number_of_points;
+		float x, y, a;
+		for (int i = 0; i < number_of_points; i++) {
+			a = degree_increment * (float)i;
+			x = radius * cos(a);
+			y = radius * sin(a);
+			file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+		}
+
+		return file_name;
+	};
+	auto square_points = [&]() {
+		if (file_name == "") {
+			file_name = "triangle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
+		}
+		file.open(file_name);
+		file << number_of_points << std::endl;
+		float degree_increment = ((float)M_PI * 2.f) / (float)number_of_points;
+		float x, y, a;
+		for (int i = 0; i < number_of_points; i++) {
+			a = degree_increment * (float)i;
+			x = radius * cos(a);
+			y = radius * sin(a);
+			file << std::to_string(x) << " " << std::to_string(y) << std::endl;
+		}
+
+		return file_name;
+	};
+
+	switch (type) {
+		case circle:
+			file_name = circle_points();
+			break;
+		case random:
+			file_name = random_points();
+			break;
+		case triangle:
+			file_name = triangle_points();
+			break;
+		case square:
+			file_name = square_points();
+			break;
+	}
+
+	return file_name;
+}
 
 std::string write_random_points(size_t number_of_points, size_t radius=1, std::string file_name = ""){
     std::default_random_engine generator;
