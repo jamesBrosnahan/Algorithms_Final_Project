@@ -103,10 +103,12 @@ std::vector<point> jarvis_march(std::vector<point> points) {
 		{
 			points[i] = std::move(points.back());
 		}
-		points.pop_back();
+		if(points.size() > 0){
+		    points.pop_back();
+		}
 		//points.erase(points.begin() + i);
 		hull_point = endpoint;
-	} while (endpoint != convex_hull_points[0]);
+	} while (endpoint != convex_hull_points[0] && points.size() > 0);
 
 	return convex_hull_points;
 }
@@ -180,7 +182,7 @@ expected output:
 4.00 4.00
 0.00 3.00
 */
-enum shape{random, circle, triangle, square};
+enum shape{random_shape, circle_shape, triangle_shape, square_shape};
 std::string write_points(shape type, size_t number_of_points, size_t radius = 1, std::string file_name = "") {
 	std::default_random_engine generator;
 	std::uniform_real_distribution<float> distribution;
@@ -253,16 +255,16 @@ std::string write_points(shape type, size_t number_of_points, size_t radius = 1,
 	};
 
 	switch (type) {
-		case circle:
+		case circle_shape:
 			file_name = circle_points();
 			break;
-		case random:
+		case random_shape:
 			file_name = random_points();
 			break;
-		case triangle:
+		case triangle_shape:
 			file_name = triangle_points();
 			break;
-		case square:
+		case square_shape:
 			file_name = square_points();
 			break;
 	}
