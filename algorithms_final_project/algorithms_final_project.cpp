@@ -343,10 +343,10 @@ std::vector<point> load_file(std::string file_name){
     return points;
 }
 
-void test_jarvis_march() {
+void test_jarvis_march(size_t number_of_points = 360, size_t radius = 5) {
     std::chrono::microseconds circle_microseconds, random_microseconds;
     std::ofstream log_file("jarvis_march_log_file.txt");
-    size_t number_of_points = 360, radius=5;
+    //size_t number_of_points = 360, radius=5;
     
     std::string file_name;
     std::vector<point> circle_points, random_points, circle_hull, random_hull;
@@ -388,10 +388,10 @@ void test_jarvis_march() {
     
 }
 
-void test_graham_scan() {
+void test_graham_scan(size_t number_of_points = 360, size_t radius = 5) {
     std::chrono::microseconds circle_microseconds, random_microseconds;
     std::ofstream log_file("graham_scan_log_file.txt");
-    size_t number_of_points = 360, radius=5;
+    //size_t number_of_points = 360, radius=5;
     
     std::string file_name;
     std::vector<point> circle_points, random_points, circle_hull, random_hull;
@@ -424,10 +424,85 @@ void test_graham_scan() {
     
 }
 
+void test_graham_scan_and_jarvis_march(size_t number_of_points = 360, size_t radius = 5) {
+	std::chrono::microseconds graham_circle_microseconds, graham_random_microseconds, jarvis_circle_microseconds, jarvis_random_microseconds;
+	std::ofstream graham_log_file("graham_scan_log_file.txt");
+	std::ofstream jarvis_log_file("jarvis_march_log_file.txt");
+	//size_t number_of_points = 360, radius=5;
+
+	std::string file_name;
+	std::vector<point> circle_points, random_points, circle_hull, random_hull;
+
+	auto graham_convex_hull = [](std::vector<point> &points, std::vector<point> &output_hull) -> std::chrono::microseconds {
+		std::chrono::high_resolution_clock::time_point end_time, start_time;
+		if (output_hull.size() > 0) {
+			output_hull.clear();
+		}
+		start_time = std::chrono::high_resolution_clock::now(); //get the start time
+		output_hull = graham_scan(points); //run algorithm
+		end_time = std::chrono::high_resolution_clock::now(); // get the end time
+		std::chrono::microseconds microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+		return microseconds;
+	};
+	auto jarvis_convex_hull = [](std::vector<point> &points, std::vector<point> &output_hull) -> std::chrono::microseconds {
+		std::chrono::high_resolution_clock::time_point end_time, start_time;
+		if (output_hull.size() > 0) {
+			output_hull.clear();
+		}
+		start_time = std::chrono::high_resolution_clock::now(); //get the start time
+		output_hull = jarvis_march(points); //run algorithm
+		end_time = std::chrono::high_resolution_clock::now(); // get the end time
+		std::chrono::microseconds microseconds = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+		return microseconds;
+	};
+
+
+	file_name = write_circle_points(number_of_points, radius);
+	circle_points = load_file(file_name);
+
+	file_name = write_random_points(number_of_points, radius);
+	random_points = load_file(file_name);
+
+	std::future<std::chrono::microseconds> graham_circle_future(std::async(graham_convex_hull, std::ref(circle_points), std::ref(circle_hull)));
+	std::future<std::chrono::microseconds> graham_random_future(std::async(graham_convex_hull, std::ref(random_points), std::ref(random_hull)));
+	std::future<std::chrono::microseconds> jarvis_circle_future(std::async(jarvis_convex_hull, std::ref(circle_points), std::ref(circle_hull)));
+	std::future<std::chrono::microseconds> jarvis_random_future(std::async(jarvis_convex_hull, std::ref(random_points), std::ref(random_hull)));
+
+	graham_random_microseconds = graham_random_future.get();
+	graham_circle_microseconds = graham_circle_future.get();
+
+	std::cout << std::fixed << std::setprecision(2) << " Duration of Graham Scan using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius) << " square completed in " << graham_random_microseconds.count() << " microseconds " << std::endl;
+	graham_log_file << std::fixed << std::setprecision(2) << " Duration of Graham Scan using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius) << " square completed in " << graham_random_microseconds.count() << " microseconds " << std::endl;
+
+
+	std::cout << std::fixed << std::setprecision(2) << " Duration of Graham Scan with " << number_of_points << " on a circle with radius " << radius << " completed in " << graham_circle_microseconds.count() << " microseconds " << std::endl;
+	graham_log_file << std::fixed << std::setprecision(2) << " Duration of Graham Scan with " << number_of_points << " on a circle with radius " << radius << " completed in " << graham_circle_microseconds.count() << " microseconds " << std::endl;
+
+
+	jarvis_random_microseconds = jarvis_random_future.get();
+
+	std::cout << std::fixed << std::setprecision(2) << " Duration of Jarvis March using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius) << " square completed in " << jarvis_random_microseconds.count() << " microseconds " << std::endl;
+
+	jarvis_log_file << std::fixed << std::setprecision(2) << " Duration of Jarvis March using " << number_of_points << " random points with a " << (2 * radius) << " by " << (2 * radius) << " square completed in " << jarvis_random_microseconds.count() << " microseconds " << std::endl;
+
+	jarvis_circle_microseconds = jarvis_circle_future.get();
+
+	std::cout << std::fixed << std::setprecision(2) << " Duration of Jarvis March with " << number_of_points << " on a circle with radius " << radius << " completed in " << jarvis_circle_microseconds.count() << " microseconds " << std::endl;
+
+	jarvis_log_file << std::fixed << std::setprecision(2) << " Duration of Jarvis March with " << number_of_points << " on a circle with radius " << radius << " completed in " << jarvis_circle_microseconds.count() << " microseconds " << std::endl;
+
+
+
+}
+
 int main() {
 	//test_correctness_of_graham_scan();
-	test_graham_scan();
-	test_jarvis_march();
+	size_t number_of_points = 360, radius = 5;
+	for (size_t i = 1; i < 4; i++) {
+		number_of_points *= i;
+		radius *= i;
+		test_graham_scan_and_jarvis_march(number_of_points, radius);
+	}
 	return 1;
 }
 
