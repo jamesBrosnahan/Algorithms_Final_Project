@@ -104,13 +104,13 @@ std::vector<point> jarvis_march(std::vector<point> points) {
 	do {
 		convex_hull_points.push_back(hull_point);
 		endpoint = points[0];
-		for (int j = 1; j < points.size(); j++) {
+		for (int j = 0; j < points.size(); j++) {
 			if ((left_or_right_turn_function(convex_hull_points.back(), endpoint, points[j]) < 0)) {
 				endpoint = points[j];
 				i = j;
 			}
 		}
-		if (i != points.size() - 1)
+		if (i < points.size() - 1)
 		{
 			points[i] = std::move(points.back());
 		}
@@ -428,5 +428,6 @@ int main() {
 	//test_correctness_of_graham_scan();
 	test_graham_scan();
 	test_jarvis_march();
+	return 1;
 }
 
