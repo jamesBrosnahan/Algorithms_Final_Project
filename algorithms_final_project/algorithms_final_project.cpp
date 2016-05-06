@@ -503,6 +503,8 @@ int main() {
 		radius *= i;
 		test_graham_scan_and_jarvis_march(number_of_points, radius);
 	}
+	std::string a;
+	std::cin >> a;
 	return 1;
 }
 
