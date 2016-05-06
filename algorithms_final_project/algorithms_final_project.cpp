@@ -45,7 +45,7 @@ std::vector<point> merge_hulls(std::vector<point> const& left, std::vector<point
 
 std::vector<point> divide_and_conquer(std::vector<point> points) {
 	std::vector<point> convex_hull_points;
-	auto min_x_coordinate = [](point const& p1, point const& p2) {
+	/*auto min_x_coordinate = [](point const& p1, point const& p2) {
 		if (p1.x == p2.x) {
 			return p1.y < p2.y;
 		}
@@ -53,22 +53,33 @@ std::vector<point> divide_and_conquer(std::vector<point> points) {
 			return p1.x < p2.x;
 		}
 	};
-	if (points.size() <= 3) {
-		convex_hull_points = points;
-	}
-	else {
+	switch(points.size()){
+	    case 0:
+	    case 1:
+	        convex_hull_points = points;
+	        break;
+        case 2:
+	        bool temp_right = (points[1].x > points[0].x);
+            bool temp_up = points[1].y > points[0].y;
+	        auto temp_left_point = temp_right ? points[0] : (up ? points[0] : points[1]);
+	        auto temp_right_point = temp_right ? points[1] : (up ? points[1] : points[0]);
+	        convex_hull_points.push_back(temp_left_point);
+	        convex_hull_points.push_back(temp_right_point);
+	        break;
+        case 3:
+            
+            break;
+        default:
+		    size_t mid = points.size() / 2;
+		    std::nth_element(points.begin(), points.begin() + mid, points.end(), min_x_coordinate);
+		    std::vector<point> left_points(points.begin(), points.begin() + mid);
+		    std::vector<point> right_points(points.begin() + mid, points.end());
+		    std::vector<point> hull_a = divide_and_conquer(left_points);
+		    std::vector<point> hull_b = divide_and_conquer(right_points);            
+            break;
+	    }
 
-		size_t mid = points.size() / 2;
-		std::nth_element(points.begin(), points.begin() + mid, points.end(), min_x_coordinate);
-		std::vector<point> left_points(points.begin(), points.begin() + mid);
-		std::vector<point> right_points(points.begin() + mid, points.end());
-		std::vector<point> hull_a = divide_and_conquer(left_points);
-		std::vector<point> hull_b = divide_and_conquer(right_points);
-
-
-
-	}
-
+    */
 	return convex_hull_points;
 }
 
@@ -219,7 +230,7 @@ std::string write_points(shape type, size_t number_of_points, size_t radius = 1,
 		}
 		return file_name;
 	};
-	auto triangle_points = [&]() {
+	auto square_points = [&]() {
 		if (file_name == "") {
 			file_name = "triangle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
 		}
@@ -236,7 +247,7 @@ std::string write_points(shape type, size_t number_of_points, size_t radius = 1,
 
 		return file_name;
 	};
-	auto square_points = [&]() {
+	auto triangle_points = [&]() {
 		if (file_name == "") {
 			file_name = "triangle_test_case" + std::to_string(number_of_points) + "_" + std::to_string(radius) + ".points";
 		}
